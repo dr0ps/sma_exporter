@@ -1,0 +1,15 @@
+[package]
+name = "sma_exporter"
+version = "0.1.0"
+authors = ["Jürgen Ebert <juergen.ebert@exedio.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+prometheus = {version="0.9.0", features = ["gen"]}
+hyper = "0.13.6"
+tokio = {version="0.2.21", features = ["full"]}
+byteorder = "1.3.4"
+lazy_static = "1.4.0"
+socket2 = {version = "0.3.12", features = ["reuseport"]}
