@@ -1,7 +1,7 @@
 [package]
 name = "sma_exporter"
 version = "0.1.0"
-authors = ["Jürgen Ebert <juergen.ebert@exedio.com>"]
+authors = ["dr0ps https://github.com/dr0ps"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -7,10 +7,7 @@ use std::collections::HashMap;
 
 /*
  *
- * by Wenger Florian 2015-09-02
- * wenger@unifox.at
- *
- * endless loop (until ctrl+c) displays measurement from SMA Energymeter
+ * by dr0ps 2020-Jul-18
  *
  *
  *  this software is released under GNU General Public License, version 2.
@@ -24,9 +21,6 @@ use std::collections::HashMap;
  *  You should have received a copy of the GNU General Public License along with this program;
  *  if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * 2018-12-22 Tommi2Day small enhancements
- * 2019-08-13 datenschuft run without config
- * 2020-01-04 datenschuft changes to tun with speedwiredecoder
  *
  */
 
