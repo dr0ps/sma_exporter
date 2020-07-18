@@ -5,9 +5,9 @@ use byteorder::{BigEndian, ReadBytesExt};
 use hyper::body::Buf;
 
 /*
- *
  * by david-m-m 2019-Mar-17
  * by datenschuft 2020-Jan-04
+ * by dr0ps 2020-Jul-18
  *
  *  this software is released under GNU General Public License, version 2.
  *  This program is free software;
@@ -32,10 +32,10 @@ lazy_static! {
         map.insert("Wh",3600);
         map.insert("VAh",3600);
         map.insert("VArh",3600);
-        map.insert("A",1000);
-        map.insert("V",1000);
+        map.insert("mA",1);
+        map.insert("mV",1);
         map.insert("°",1000);
-        map.insert("Hz",1000);
+        map.insert("mHz",1);
         map
     };
 }
@@ -43,7 +43,7 @@ lazy_static! {
 //map of all defined SMA channels
 //format: <channel_number>:(emparts_name>,<unit_actual>,<unit_total>)
 lazy_static! {
-    static ref SMA_CHANNELS: HashMap<u32, Vec<&'static str>> = {
+    pub static ref SMA_CHANNELS: HashMap<u32, Vec<&'static str>> = {
         let mut map = HashMap::new();
         // totals
         map.insert(1, vec!["pconsume","W","Wh"]);
@@ -53,7 +53,7 @@ lazy_static! {
         map.insert(9, vec!["sconsume","VA","VAh"]);
         map.insert(10, vec!["ssupply","VA","VAh"]);
         map.insert(13, vec!["cosphi","°"]);
-        map.insert(14, vec!["frequency","Hz"]);
+        map.insert(14, vec!["frequency","mHz"]);
         // phase 1
         map.insert(21, vec!["p1consume","W","Wh"]);
         map.insert(22, vec!["p1supply","W","Wh"]);
@@ -61,8 +61,8 @@ lazy_static! {
         map.insert(24, vec!["q1supply","VAr","VArh"]);
         map.insert(29, vec!["s1consume","VA","VAh"]);
         map.insert(30, vec!["s1supply","VA","VAh"]);
-        map.insert(31, vec!["i1","A"]);
-        map.insert(32, vec!["u1","V"]);
+        map.insert(31, vec!["i1","mA"]);
+        map.insert(32, vec!["u1","mV"]);
         map.insert(33, vec!["cosphi1","°"]);
         // phase 2
         map.insert(41, vec!["p2consume","W","Wh"]);
@@ -71,8 +71,8 @@ lazy_static! {
         map.insert(44, vec!["q2supply","VAr","VArh"]);
         map.insert(49, vec!["s2consume","VA","VAh"]);
         map.insert(50, vec!["s2supply","VA","VAh"]);
-        map.insert(51, vec!["i2","A"]);
-        map.insert(52, vec!["u2","V"]);
+        map.insert(51, vec!["i2","mA"]);
+        map.insert(52, vec!["u2","mV"]);
         map.insert(53, vec!["cosphi2","°"]);
         // phase 3
         map.insert(61, vec!["p3consume","W","Wh"]);
@@ -81,8 +81,8 @@ lazy_static! {
         map.insert(64, vec!["q3supply","VAr","VArh"]);
         map.insert(69, vec!["s3consume","VA","VAh"]);
         map.insert(70, vec!["s3supply","VA","VAh"]);
-        map.insert(71, vec!["i3","A"]);
-        map.insert(72, vec!["u3","V"]);
+        map.insert(71, vec!["i3","mA"]);
+        map.insert(72, vec!["u3","mV"]);
         map.insert(73, vec!["cosphi3","°"]);
         // common
         map.insert(36864, vec!["speedwire-version",""]);
