@@ -2,6 +2,8 @@
 
 This creates a single binary that exports values from the SMA Home Manager.
 
+![alt text](2020-07-27_22-34.png)
+
 ## Getting Started
 
 sma_exporter is written in Rust. When run it will create a http server running on port 9743 where it exports all data for supplied and consumed power, voltage and frequency as gauges and, where available, as counters. The part that reads the SMA data is basically copied from [SMA-EM](https://github.com/datenschuft/SMA-EM).
