@@ -9,6 +9,7 @@ use std::sync::{Arc, Mutex};
 use crate::udp_client::{read_sma_homemanager, initialize_socket};
 use std::collections::HashMap;
 use std::borrow::Borrow;
+use std::process::exit;
 
 /*
  *
@@ -132,7 +133,14 @@ async fn main() {
         Ok::<_, Infallible>(service_fn(handle))
     });
 
-    let socket = initialize_socket();
+    let socket;
+    match initialize_socket() {
+        Err(e) => {
+            println!("Error when creating socket: {}", e);
+            exit(1);
+        }
+        Ok(s) => {socket = s;}
+    }
 
     // Spawn one second timer
     thread::spawn(move || {

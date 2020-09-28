@@ -27,14 +27,26 @@ use std::collections::HashMap;
 //default values
 const PORT: u16  = 9522;
 
-pub fn initialize_socket() -> Socket {
-    let socket = Socket::new(Domain::ipv4(), Type::dgram(), Some(Protocol::udp())).unwrap();
-    socket.set_reuse_address(true).unwrap();
-    socket.bind(&SockAddr::from(SocketAddr::new(
+pub fn initialize_socket() -> Result<Socket, &'static str> {
+    let socket;
+    match Socket::new(Domain::ipv4(), Type::dgram(), Some(Protocol::udp())) {
+        Ok(s) => { socket = s; }
+        Err(_e) => { return Err("Unable to create socket"); }
+    }
+    match socket.set_reuse_address(true) {
+        Ok(()) => {}
+        Err(_e) => { return Err("Unable to reuse address."); }
+    }
+    match socket.bind(&SockAddr::from(SocketAddr::new(
         Ipv4Addr::new(0, 0, 0, 0).into(),
-        PORT))).unwrap();
-    assert!(socket.join_multicast_v4(&Ipv4Addr::new(239, 12, 255, 254), &Ipv4Addr::new(0, 0, 0, 0)).is_ok());
-    socket
+        PORT))) {
+        Ok(()) => {}
+        Err(_e) => { return Err("Unable to bind."); }
+    }
+    return match socket.join_multicast_v4(&Ipv4Addr::new(239, 12, 255, 254), &Ipv4Addr::new(0, 0, 0, 0)) {
+        Ok(()) => { Ok(socket) }
+        Err(_e) => { Err("Unable to join multicast.") }
+    }
 }
 
 pub fn read_sma_homemanager(socket : &Socket) -> HashMap<String, String> {
