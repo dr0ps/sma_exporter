@@ -1,8 +1,7 @@
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-use std::io::Cursor;
+use std::io::{Cursor, Read};
 use byteorder::{BigEndian, ReadBytesExt};
-use hyper::body::Buf;
 
 /*
  * by david-m-m 2019-Mar-17
@@ -139,7 +138,11 @@ pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String>{
         while position < datalength as u64 {
             // decode header
             rdr.set_position(position);
-            let (measurement, datatype) = decode_obis(rdr.bytes());
+            let mut obis_buffer: [u8;4] = [0;4];
+            if rdr.read(&mut obis_buffer).unwrap() != 4 {
+                break
+            }
+            let (measurement, datatype) = decode_obis(&obis_buffer);
             // decode values
             // actual values
             if datatype == "actual" {

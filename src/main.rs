@@ -147,7 +147,6 @@ async fn main() {
         loop {
             thread::sleep(Duration::from_secs(1));
             let em_values = read_sma_homemanager(&socket);
-
             let _lock = LOCK.lock().unwrap();
 
             for key in CHANNEL_MAPPINGS.keys() {
