@@ -1,14 +1,14 @@
 # Prometheus Exporter for SMA Home Manager
 
-This creates a single binary that exports values from the SMA Home Manager.
+This project exports values from the SMA Home Manager for use in Prometheus / Grafana.
 
 ![alt text](2020-07-27_22-34.png)
 
 ## Getting Started
 
-sma_exporter is written in Rust. When run it will create a http server running on port 9743 where it exports all data for supplied and consumed power, voltage and frequency as gauges and, where available, as counters. The part that reads the SMA data is basically copied from [SMA-EM](https://github.com/datenschuft/SMA-EM).
+You can download a build from the [release page](https://github.com/dr0ps/sma_exporter/releases/latest). When run the executable it will create a http server running on port 9743 where it exports all data for supplied and consumed power, voltage and frequency as gauges and, where available, as counters. The part that reads the SMA data is basically copied from [SMA-EM](https://github.com/datenschuft/SMA-EM).
 
-### Prerequisites
+### Building from Source
 
 You need a Rust/Cargo installation. See https://rustup.rs/. After checking out this repository you can simply run
 
@@ -17,15 +17,6 @@ cargo run
 ```
 
 and if that works for you (point your browser to http://localhost:9743) you can install the binary.
-
-
-### Installing
-
-You can build a binary for deployment by running
-
-```
-cargo build --release
-```
 
 ## Deployment
 
