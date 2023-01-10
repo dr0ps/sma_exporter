@@ -4,6 +4,7 @@ use self::socket2::{Socket, Domain, Type, Protocol, SockAddr};
 use std::net::{SocketAddr, Ipv4Addr};
 use crate::sma_decoder::decode_speedwire;
 use std::collections::HashMap;
+use std::mem::MaybeUninit;
 
 /*
  *
@@ -29,7 +30,7 @@ const PORT: u16  = 9522;
 
 pub fn initialize_socket() -> Result<Socket, &'static str> {
     let socket;
-    match Socket::new(Domain::ipv4(), Type::dgram(), Some(Protocol::udp())) {
+    match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
         Ok(s) => { socket = s; }
         Err(_e) => { return Err("Unable to create socket"); }
     }
@@ -49,8 +50,14 @@ pub fn initialize_socket() -> Result<Socket, &'static str> {
     }
 }
 
+/// Assume the `buf`fer to be initialised.
+// TODO: replace with `MaybeUninit::slice_assume_init_ref` once stable.
+unsafe fn assume_init(buf: &[MaybeUninit<u8>]) -> &[u8] {
+    &*(buf as *const [MaybeUninit<u8>] as *const [u8])
+}
+
 pub fn read_sma_homemanager(socket : &Socket) -> HashMap<String, String> {
-    let mut buffer = [0;608];
+    let mut buffer = [MaybeUninit::new(0 as u8); 608];
     assert!(socket.recv(&mut buffer).is_ok());
-    return decode_speedwire(&buffer);
+    return decode_speedwire(unsafe { assume_init(&buffer) } );
 }
