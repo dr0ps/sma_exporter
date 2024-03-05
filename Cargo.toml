@@ -1,6 +1,6 @@
 [package]
 name = "sma_exporter"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["dr0ps https://github.com/dr0ps"]
 edition = "2021"
 
@@ -8,7 +8,9 @@ edition = "2021"
 
 [dependencies]
 prometheus = {version= "0.13.3", features = ["gen"]}
-hyper = { version = "0.14", features = ["full"] }
+hyper = { version = "1", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+http-body-util = "0.1"
 tokio = { version = "1", features = ["full"] }
 byteorder = "1.5"
 lazy_static = "1.4"

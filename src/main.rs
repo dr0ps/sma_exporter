@@ -1,15 +1,21 @@
+use crate::udp_client::{read_sma_homemanager, initialize_socket};
+use http_body_util::{BodyExt, combinators::BoxBody, Full};
+use hyper::body::Bytes;
+use hyper::server::conn::http1;
+use hyper::service::service_fn;
+use hyper::{Request, Response};
+use hyper_util::rt::TokioIo;
 use lazy_static::lazy_static;
-use std::{convert::Infallible, net::SocketAddr};
-use hyper::{Body, Request, Response, Server};
-use hyper::service::{make_service_fn, service_fn};
 use prometheus::{Opts, TextEncoder, Encoder, register, gather, GaugeVec, CounterVec};
+use std::borrow::Borrow;
+use std::collections::HashMap;
+use std::convert::Infallible;
+use std::net::SocketAddr;
+use std::process::exit;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
-use std::sync::{Arc, Mutex};
-use crate::udp_client::{read_sma_homemanager, initialize_socket};
-use std::collections::HashMap;
-use std::borrow::Borrow;
-use std::process::exit;
+use tokio::net::TcpListener;
 
 /*
  *
@@ -37,7 +43,7 @@ lazy_static! {
     static ref LOCK: Arc<Mutex<u32>> = Arc::new(Mutex::new(0_u32));
 }
 
-async fn handle(_: Request<Body>) -> Result<Response<Body>, Infallible> {
+async fn handle(_: Request<hyper::body::Incoming>) -> Result<Response<BoxBody<Bytes, Infallible>>, hyper::Error> {
     let mut buffer = vec![];
     let encoder = TextEncoder::new();
 
@@ -46,7 +52,11 @@ async fn handle(_: Request<Body>) -> Result<Response<Body>, Infallible> {
     let metric_families = gather();
     encoder.encode(&metric_families, &mut buffer).unwrap();
 
-    Ok(Response::new(String::from_utf8(buffer).unwrap().into()))
+    Ok(Response::new(full(buffer)))
+}
+
+fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, Infallible> {
+    Full::new(chunk.into()).boxed()
 }
 
 lazy_static! {
@@ -97,7 +107,7 @@ lazy_static! {
 
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Create a Counter.
     let mut gauges:HashMap<&'static str, GaugeVec> = HashMap::new();
@@ -129,10 +139,6 @@ async fn main() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 9743));
 
-    let make_svc = make_service_fn(|_conn| async {
-        Ok::<_, Infallible>(service_fn(handle))
-    });
-
     let socket;
     match initialize_socket() {
         Err(e) => {
@@ -142,7 +148,7 @@ async fn main() {
         Ok(s) => {socket = s;}
     }
 
-    // Spawn one second timer
+    // Spawn one-second timer
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs(1));
@@ -174,9 +180,19 @@ async fn main() {
         }
     });
 
-    let server = Server::bind(&addr).serve(make_svc);
+    let listener = TcpListener::bind(addr).await?;
+    println!("Listening on http://{}", addr);
+    loop {
+        let (stream, _) = listener.accept().await?;
+        let io = TokioIo::new(stream);
 
-    if let Err(e) = server.await {
-        eprintln!("server error: {}", e);
+        tokio::task::spawn(async move {
+            if let Err(err) = http1::Builder::new()
+                .serve_connection(io, service_fn(handle))
+                .await
+            {
+                println!("Error serving connection: {:?}", err);
+            }
+        });
     }
 }
