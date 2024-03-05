@@ -1,6 +1,6 @@
 [package]
 name = "sma_exporter"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["dr0ps https://github.com/dr0ps"]
 edition = "2021"
 
@@ -10,10 +10,10 @@ edition = "2021"
 prometheus = {version= "0.13.3", features = ["gen"]}
 hyper = { version = "0.14", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
-byteorder = "1.3.4"
-lazy_static = "1.4.0"
-socket2 = "0.4.7"
+byteorder = "1.5"
+lazy_static = "1.4"
+socket2 = "0.5"
 
-arc-swap = "1.6.0"
-futures-task ="0.3.7"
-futures-util = "0.3.7"
+arc-swap = "1.7"
+futures-task ="0.3"
+futures-util = "0.3"
