@@ -13,7 +13,7 @@ hyper-util = { version = "0.1", features = ["full"] }
 http-body-util = "0.1"
 tokio = { version = "1", features = ["full"] }
 byteorder = "1.5"
-lazy_static = "1.4"
+lazy_static = "1.5"
 socket2 = "0.5"
 
 arc-swap = "1.7"
