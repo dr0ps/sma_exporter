@@ -4,6 +4,7 @@ use self::socket2::{Socket, Domain, Type, Protocol, SockAddr};
 use std::net::{SocketAddr, Ipv4Addr};
 use crate::sma_decoder::decode_speedwire;
 use std::collections::HashMap;
+use std::mem;
 use std::mem::MaybeUninit;
 
 /*
@@ -49,14 +50,9 @@ pub fn initialize_socket() -> Result<Socket, &'static str> {
     }
 }
 
-/// Assume the `buf`fer to be initialised.
-// TODO: replace with `MaybeUninit::slice_assume_init_ref` once stable.
-unsafe fn assume_init(buf: &[MaybeUninit<u8>]) -> &[u8] {
-    &*(buf as *const [MaybeUninit<u8>] as *const [u8])
-}
-
 pub fn read_sma_homemanager(socket : &Socket) -> HashMap<String, String> {
-    let mut buffer = [MaybeUninit::new(0_u8); 608];
+    let mut buffer = [const { MaybeUninit::uninit() }; 608];
     assert!(socket.recv(&mut buffer).is_ok());
-    decode_speedwire(unsafe { assume_init(&buffer) } )
+
+    decode_speedwire(unsafe { mem::transmute::<[MaybeUninit<u8>; 608], [u8; 608]>(buffer) } )
 }

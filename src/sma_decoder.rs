@@ -108,11 +108,11 @@ fn decode_obis(obis: &[u8]) -> (u16, &str) {
     (measurement, datatype)
 }
 
-pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String> {
+pub fn decode_speedwire(datagram: [u8; 608]) -> HashMap<String, String> {
     let mut emparts: HashMap<String, String> = HashMap::new();
 
     // process data only of SMA header is present
-    if datagram.starts_with(&[b'S', b'M', b'A'])
+    if datagram.starts_with(b"SMA")
     {
         let mut rdr = Cursor::new(datagram.to_vec());
         // datagram length
