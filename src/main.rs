@@ -139,14 +139,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 9743));
 
-    let socket;
-    match initialize_socket() {
+    let socket= match initialize_socket() {
         Err(e) => {
             println!("Error when creating socket: {}", e);
             exit(1);
         }
-        Ok(s) => {socket = s;}
-    }
+        Ok(s) => { s }
+    };
 
     // Spawn one-second timer
     thread::spawn(move || {
@@ -157,7 +156,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
             for key in CHANNEL_MAPPINGS.keys() {
 
-                let gauge_value_key = format!("{}",key).to_string();
+                let gauge_value_key = key.to_string();
                 if em_values.contains_key(gauge_value_key.as_str())
                 {
                     let values = CHANNEL_MAPPINGS.get(key).unwrap();

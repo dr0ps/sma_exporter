@@ -89,33 +89,30 @@ lazy_static! {
     };
 }
 
-fn decode_obis(obis: &[u8]) -> (u16, &str){
+fn decode_obis(obis: &[u8]) -> (u16, &str) {
     let mut rdr = Cursor::new(obis.to_vec());
     let measurement = rdr.read_u16::<BigEndian>().unwrap();
     let raw_type = rdr.read_i8().unwrap();
 
     let datatype;
-    if raw_type==4 {
-        datatype="actual"
-    }
-    else if raw_type == 8 {
+    if raw_type == 4 {
+        datatype = "actual"
+    } else if raw_type == 8 {
         datatype = "counter"
-    }
-    else if raw_type == 0 && measurement==36864{
+    } else if raw_type == 0 && measurement == 36864 {
         datatype = "version"
-    }
-    else {
-        datatype="unknown"
+    } else {
+        datatype = "unknown"
     }
 
-    return (measurement, datatype);
+    (measurement, datatype)
 }
 
-pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String>{
-    let mut emparts : HashMap<String, String> = HashMap::new();
+pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String> {
+    let mut emparts: HashMap<String, String> = HashMap::new();
 
     // process data only of SMA header is present
-    if datagram.starts_with(&['S' as u8, 'M' as u8, 'A' as u8])
+    if datagram.starts_with(&[b'S', b'M', b'A'])
     {
         let mut rdr = Cursor::new(datagram.to_vec());
         // datagram length
@@ -138,9 +135,9 @@ pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String>{
         while position < datalength as u64 {
             // decode header
             rdr.set_position(position);
-            let mut obis_buffer: [u8;4] = [0;4];
+            let mut obis_buffer: [u8; 4] = [0; 4];
             if rdr.read(&mut obis_buffer).unwrap() != 4 {
-                break
+                break;
             }
             let (measurement, datatype) = decode_obis(&obis_buffer);
             // decode values
@@ -154,7 +151,7 @@ pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String>{
                 {
                     let sma_channel = &SMA_CHANNELS[&(measurement as u32)];
                     emparts.insert(sma_channel[0].to_string(), (value / SMA_UNITS[sma_channel[1]]).to_string());
-                    let unit_key = sma_channel[0].to_owned() +"unit";
+                    let unit_key = sma_channel[0].to_owned() + "unit";
                     emparts.insert(unit_key, sma_channel[1].to_string());
                 }
             }
@@ -167,18 +164,14 @@ pub fn decode_speedwire(datagram: &[u8]) -> HashMap<String, String>{
                 if SMA_CHANNELS.contains_key(&(measurement as u32))
                 {
                     let sma_channel = &SMA_CHANNELS[&(measurement as u32)];
-                    let counter_key = sma_channel[0].to_owned() +"counter";
+                    let counter_key = sma_channel[0].to_owned() + "counter";
                     emparts.insert(counter_key, (value / SMA_UNITS[sma_channel[2]] as u64).to_string());
-                    let unit_key = sma_channel[0].to_owned() +"counterunit";
+                    let unit_key = sma_channel[0].to_owned() + "counterunit";
                     emparts.insert(unit_key, sma_channel[2].to_string());
                 }
-            }
-            else if datatype == "version" {
+            } else {
                 position += 8
-          }
-          else {
-              position += 8
-          }
+            }
         }
     }
     emparts

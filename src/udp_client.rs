@@ -29,11 +29,10 @@ use std::mem::MaybeUninit;
 const PORT: u16  = 9522;
 
 pub fn initialize_socket() -> Result<Socket, &'static str> {
-    let socket;
-    match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
-        Ok(s) => { socket = s; }
+    let socket= match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
+        Ok(s) => { s }
         Err(_e) => { return Err("Unable to create socket"); }
-    }
+    };
     match socket.set_reuse_address(true) {
         Ok(()) => {}
         Err(_e) => { return Err("Unable to reuse address."); }
@@ -44,7 +43,7 @@ pub fn initialize_socket() -> Result<Socket, &'static str> {
         Ok(()) => {}
         Err(_e) => { return Err("Unable to bind."); }
     }
-    return match socket.join_multicast_v4(&Ipv4Addr::new(239, 12, 255, 254), &Ipv4Addr::new(0, 0, 0, 0)) {
+    match socket.join_multicast_v4(&Ipv4Addr::new(239, 12, 255, 254), &Ipv4Addr::new(0, 0, 0, 0)) {
         Ok(()) => { Ok(socket) }
         Err(_e) => { Err("Unable to join multicast.") }
     }
@@ -57,7 +56,7 @@ unsafe fn assume_init(buf: &[MaybeUninit<u8>]) -> &[u8] {
 }
 
 pub fn read_sma_homemanager(socket : &Socket) -> HashMap<String, String> {
-    let mut buffer = [MaybeUninit::new(0 as u8); 608];
+    let mut buffer = [MaybeUninit::new(0_u8); 608];
     assert!(socket.recv(&mut buffer).is_ok());
-    return decode_speedwire(unsafe { assume_init(&buffer) } );
+    decode_speedwire(unsafe { assume_init(&buffer) } )
 }
