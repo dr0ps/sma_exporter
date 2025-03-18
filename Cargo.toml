@@ -1,8 +1,8 @@
 [package]
 name = "sma_exporter"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["dr0ps https://github.com/dr0ps"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
